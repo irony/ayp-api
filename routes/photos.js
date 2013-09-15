@@ -118,7 +118,7 @@ module.exports = function(app){
         res.json(results);
       } catch (err){
         console.log('Error: Could not send response: '.red, err);
-        res.end();
+        return res.end();
       }
     });
     
