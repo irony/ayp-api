@@ -12,6 +12,10 @@
   "dependencies": {
     "mongoose": "~3.6.19",
     "AllYourPhotosModels": "0.0.1",
-    "require-dir": "~0.1.0"
+    "require-dir": "~0.1.0",
+    "lodash": "~2.0.0",
+    "redis": "~0.8.4",
+    "moment": "~2.2.1",
+    "async": "~0.2.9"
   }
 }

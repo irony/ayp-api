@@ -157,9 +157,4 @@ module.exports = function(app){
     });
   });
 
-
-
-  });
-
-
 };
