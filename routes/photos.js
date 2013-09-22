@@ -87,7 +87,7 @@ module.exports = function(app){
         if (res.push){
           // SPDY is supported
           photo.src = '/thumbnail/' + photo.source + '/' + photo._id;
-          global.s3.get(photo.src).on('response', function(_res){
+          s3.get(photo.src).on('response', function(_res){
             res.push(photo.src,{}, function(pushStream){
               _res.pipe(pushStream);
             });

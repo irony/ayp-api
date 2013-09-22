@@ -5,6 +5,8 @@ var fs = require('fs');
 var path = require('path');
 var moment = require('moment');
 var async = require('async');
+var knox = require('knox');
+var s3 = knox.createClient(global.config.aws);
 var ObjectId = require('mongoose').Types.ObjectId;
 var _ = require('lodash');
 
@@ -78,7 +80,7 @@ module.exports = function(app){
                 _id : photo._id,
                 taken:photo.taken && photo.taken.getTime(),
                 cluster:mine.cluster,
-                src: global.s3.signedUrl(
+                src: s3.signedUrl(
                     '/thumbnail/' + photo.source + '/' + photo._id
                   , moment().add('year', 1).startOf('year').toDate()
                 ).replace(baseUrl, '$') || null,
