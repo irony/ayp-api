@@ -1,13 +1,13 @@
 var Photo = require('AllYourPhotosModels').photo;
 var Group = require('AllYourPhotosModels').group;
 var User = require('AllYourPhotosModels').user;
-var config = require('config');
+var nconf = require('nconf');
 var fs = require('fs');
 var path = require('path');
 var moment = require('moment');
 var async = require('async');
 var knox = require('knox');
-var s3 = knox.createClient(config.aws);
+var s3 = knox.createClient(nconf.get('aws'));
 var ObjectId = require('mongoose').Types.ObjectId;
 var _ = require('lodash');
 
