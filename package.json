@@ -10,15 +10,15 @@
   "repository": "",
   "author": "",
   "license": "BSD",
-  "dependencies": {
-    "mongoose": "~3.6.19",
+  "dependencies" : {
     "AllYourPhotosModels": "irony/ayp-models",
-    "require-dir": "~0.1.0",
     "lodash": "*",
-    "redis": "~0.8.4",
-    "moment": "~2.2.1",
-    "async": "~0.2.9",
-    "knox": "~0.8.6",
-    "nconf": "~0.6.9"
+    "mongoose": "*",
+    "redis": "*",
+    "async": "*",
+    "nconf": "*",
+    "moment": "*",
+    "knox": "*",
+    "require-dir": "~0.1.0"
   }
 }
