@@ -19,7 +19,7 @@ module.exports = function(app){
     var limit = req.query.limit || 2000;
     var baseUrl = 'https://phto.org/thumbnail';
 
-    if (!req.user) return res.send('Login first');
+    if (!req.user) return res.send('Login first', 403);
 
     // first check e-tag, this will be adding a little more time but it is worth it?
     async.parallel({
