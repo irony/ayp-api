@@ -2,12 +2,7 @@ var Photo = require('AllYourPhotosModels').photo;
 var Group = require('AllYourPhotosModels').group;
 var User = require('AllYourPhotosModels').user;
 var nconf = require('nconf');
-var fs = require('fs');
-var path = require('path');
-var moment = require('moment');
 var async = require('async');
-var knox = require('knox');
-var s3 = knox.createClient(nconf.get('aws'));
 var ObjectId = require('mongoose').Types.ObjectId;
 var _ = require('lodash');
 
@@ -75,20 +70,9 @@ module.exports = function(app){
             console.log('result', err || photos && photos.length);
 
             async.map((photos || []), function(photo, next){
-              var mine = photo.copies[req.user._id] || {};
-              var vote = mine.vote || (mine.calculatedVote);
-              return next(null, {
-                _id : photo._id,
-                taken:photo.taken && photo.taken.getTime(),
-                cluster:mine.cluster,
-                src: s3.signedUrl(
-                    '/thumbnail/' + photo.source + '/' + photo._id
-                  , moment().add('year', 1).startOf('year').toDate()
-                ).replace(baseUrl, '$') || null,
-                vote: Math.floor(vote),
-                ratio: photo.ratio
-              });
-
+              var mine = photo.getMine(req.user);
+              mine.src = mine.src && mine.src.replace(baseUrl, '$') || null;
+              return mine;
             }, done);
           });
         }
