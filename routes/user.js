@@ -20,10 +20,10 @@ module.exports = function(app){
 
       if(!user.token){
         user.generateToken(function(){
-          req.json({userId : user._id, auth_token: user.token});
+          res.json({userId : user._id, auth_token: user.token});
         });
       } else {
-        req.json(user.token);
+        res.json(user.token);
       }
 
     })(req, res, next);
@@ -31,17 +31,15 @@ module.exports = function(app){
 
 
   app.post('/api/login', passport.authenticate('local'), function(req, res) {
-    req.json({userId : user._id, auth_token: user.token});
+    res.json({userId : user._id, auth_token: user.token});
   });
 
   app.post('/api/register', function(req, res) {
-      console.log('body', req);
-      
       //TODO: verify email req.body.username
 
       User.register(new User({ username : req.body.username, emails: [req.body.username] }), req.body.password, function(err, account) {
         req.user.generateToken(function(){
-          req.json({userId : user._id, auth_token: user.token});
+          res.json({userId : user._id, auth_token: user.token});
         });
       });
   });
