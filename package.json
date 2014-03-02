@@ -5,16 +5,17 @@
   "main": "index.js",
   "private": true,
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "mocha test -R spec"
   },
   "repository": "",
   "author": "",
   "license": "BSD",
-  "peerDependencies" : {
+  "peerDependencies": {
     "nconf": "*"
   },
-  "dependencies" : {
+  "dependencies": {
     "AllYourPhotosModels": "irony/ayp-models",
+    "AllYourPhotosConnectors": "irony/ayp-connectors",
     "lodash": "*",
     "mongoose": "*",
     "redis": "*",
@@ -22,6 +23,14 @@
     "nconf": "*",
     "moment": "*",
     "knox": "*",
-    "require-dir": "~0.1.0"
+    "require-dir": "~0.1.0",
+    "passport-http-bearer": "~1.0.1",
+    "superagent": "~0.16.0"
+  },
+  "devDependencies": {
+    "express": "~3.4.0",
+    "mocha": "~1.17.1",
+    "chai": "~1.9.0",
+    "supertest": "~0.9.0"
   }
 }

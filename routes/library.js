@@ -1,5 +1,6 @@
 var Photo = require('AllYourPhotosModels').photo;
 var Group = require('AllYourPhotosModels').group;
+var passport   = require('AllYourPhotosModels').passport;
 var User = require('AllYourPhotosModels').user;
 var nconf = require('nconf');
 var async = require('async');
@@ -8,6 +9,7 @@ var _ = require('lodash');
 
 module.exports = function(app){
 
+  //app.all('/api/library', passport.authenticate('bearer', {session: false}));
 
   app.get('/api/library', function(req, res){
     console.log('loading library');

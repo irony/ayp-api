@@ -1,4 +1,8 @@
-var _ = require('lodash');
+var _ = require('lodash'),
+    User = require('AllYourPhotosModels').User,
+    passport = require('AllYourPhotosModels').passport,
+    BearerStrategy = require('passport-http-bearer').Strategy;
+
 var api = module.exports = {
   routes : require('require-dir')('./routes'),
   init : function(app){
@@ -7,6 +11,14 @@ var api = module.exports = {
       route(app);
     });
 
+    passport.use(new BearerStrategy(
+      function(token, done) {
+        User.findOne({ token: token }, function (err, user) {
+          if (err || !user) { return done(err, user); }
+          return done(null, user, { scope: 'all' });
+        });
+      }
+    ));
 
     /* automatic documentation
     swagger = require("swagger-node-express");
@@ -14,5 +26,6 @@ var api = module.exports = {
     swagger.addModels(require('AllYourPhotosModels'));
     swagger.configure("http://api.allyourphotos.org", "0.1");
     */
+    return app;
   }
 };
