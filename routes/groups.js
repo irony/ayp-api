@@ -9,11 +9,8 @@ var async = require('async');
 
 module.exports = function(app){
   
-  app.all('/api/groups', passport.authenticate('bearer', {session: false}));
-
-  app.get('/api/groups', function(req, res){
+  app.get('/api/groups', passport.authenticate('bearer'), function(req, res){
     if (!req.user) return res.send('Login first', 403);
-    console.log('loading groups');
     // return all photos with just bare minimum information for local caching
     Group.find({'userId': req.user._id}, { photos : {$slice : 5}, from: 1, to: 1, value: 1 })
     .sort({'to' : -1})

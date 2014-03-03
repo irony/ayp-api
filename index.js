@@ -1,5 +1,5 @@
 var _ = require('lodash'),
-    User = require('AllYourPhotosModels').User,
+    User = require('AllYourPhotosModels').user,
     passport = require('AllYourPhotosModels').passport,
     BearerStrategy = require('passport-http-bearer').Strategy;
 
@@ -14,7 +14,7 @@ var api = module.exports = {
     passport.use(new BearerStrategy(
       function(token, done) {
         User.findOne({ token: token }, function (err, user) {
-          if (err || !user) { return done(err, user); }
+          if (err || !user) return done(err, user);
           return done(null, user, { scope: 'all' });
         });
       }

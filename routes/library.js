@@ -9,7 +9,7 @@ var _ = require('lodash');
 
 module.exports = function(app){
 
-  //app.all('/api/library', passport.authenticate('bearer', {session: false}));
+  app.all('/api/library', passport.authenticate('bearer', {session: false}));
 
   app.get('/api/library', function(req, res){
     console.log('loading library');
