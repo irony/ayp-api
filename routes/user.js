@@ -39,6 +39,7 @@ module.exports = function(app){
 
       User.register(new User({ username : req.body.username, emails: [req.body.username] }), req.body.password, function(err, user) {
         user.generateToken(function(token){
+          console.log(token)
           res.json({userId : user._id, auth_token: user.token});
         });
       });
