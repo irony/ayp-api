@@ -37,8 +37,8 @@ module.exports = function(app){
   app.post('/api/register', function(req, res) {
       //TODO: verify email req.body.username
 
-      User.register(new User({ username : req.body.username, emails: [req.body.username] }), req.body.password, function(err, account) {
-        req.user.generateToken(function(){
+      User.register(new User({ username : req.body.username, emails: [req.body.username] }), req.body.password, function(err, user) {
+        user.generateToken(function(token){
           res.json({userId : user._id, auth_token: user.token});
         });
       });

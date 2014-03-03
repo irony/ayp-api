@@ -25,7 +25,8 @@
     "knox": "*",
     "require-dir": "~0.1.0",
     "passport-http-bearer": "~1.0.1",
-    "superagent": "~0.16.0"
+    "superagent": "~0.16.0",
+    "image-headers": "~0.3.3"
   },
   "devDependencies": {
     "express": "~3.4.0",
