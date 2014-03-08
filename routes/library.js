@@ -12,7 +12,6 @@ module.exports = function(app){
   app.all('/api/library', passport.authenticate('bearer', {session: false}));
 
   app.get('/api/library', function(req, res){
-    console.log('loading library');
     var limit = req.query.limit || 2000;
     var baseUrl = 'https://phto.org/thumbnail';
 
@@ -44,7 +43,7 @@ module.exports = function(app){
       res.setHeader("Cache-Control", "public");
       res.setHeader("Max-Age", 0);
 
-      if (req.headers['if-none-match'] === etag.toString()) {
+      if (false && req.headers['if-none-match'] === etag.toString()) {
         res.statusCode = 304;
         console.log('304');
         return res.end();
@@ -61,7 +60,8 @@ module.exports = function(app){
           // return all photos with just bare minimum information for local caching
           Photo.find({'owners': req.user._id}, 'copies.' + req.user._id + ' taken source ratio store mimeType')
       //      .sort('-copies.' + req.user._id + '.interestingness')
-          .where('taken').lt(req.query.taken || new Date())
+          .where('taken').lte(req.query.taken || req.query.to || new Date())
+          .where('taken').gte(req.query.taken || req.query.from || new Date(1900,0,1))
           .where('mimeType').equals('image/jpeg')
           .where('modified').gt(req.query.modified || new Date(1900,0,1))
           .where('store.thumbnail').exists()
@@ -69,13 +69,11 @@ module.exports = function(app){
           .skip(req.query.skip)
           .limit(parseInt(limit,10) +  1)
           .exec(function(err, photos){
-            console.log('result', err || photos && photos.length);
-
-            async.map((photos || []), function(photo, next){
+            done(null, (photos || []).map(function(photo){
               var mine = photo.getMine(req.user);
               mine.src = mine.src && mine.src.replace(baseUrl, '$') || null;
               return mine;
-            }, done);
+            }));
           });
         }
       }, function(err, results){
@@ -83,6 +81,11 @@ module.exports = function(app){
           var next = results.photos.length > limit && results.photos.pop()[req.query.modified ? 'modified' : 'taken'] || null;
           results.next = next; //(results.photos.length === limit) && last.taken || null;
           results.baseUrl = baseUrl;
+          results.photos = results.photos || [];
+          if (results.photos.length){
+            results.from = results.photos[0].taken;
+            results.to = results.photos.slice(-1).pop().taken;
+          }
 
           return res.json(results);
 

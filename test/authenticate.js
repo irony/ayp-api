@@ -12,7 +12,7 @@ var chai      = require('chai')
   , cookie;
 
 describe('auth', function() {
-  beforeEach(function () {
+  before(function () {
     var web = express();
     web.use(express.urlencoded());
     web.use(express.json());

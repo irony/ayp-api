@@ -7,6 +7,16 @@ var api = module.exports = {
   routes : require('require-dir')('./routes'),
   init : function(app){
 
+    app.all('/*', function(req, res, next) {
+      res.header("Access-Control-Allow-Origin", "*");
+      res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept, Authorization");
+      next();
+    });
+
+    app.options('/api/*', function(req, res, next) {
+      res.send(200);
+    });
+    
     _.each(api.routes, function(route){
       route(app);
     });

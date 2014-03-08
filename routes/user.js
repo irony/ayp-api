@@ -12,7 +12,7 @@ module.exports = function(app){
     });
   });
 
-  app.get('/api/auth/:connector/:callback?', function(req, res, next){
+  app.get('/api/user/:connector/:callback?', function(req, res, next){
     var connector = connectors[req.params.connector];
     passport.authenticate(connector.name, {scope : connector.scope}, function(err, user, info) {
       if (err) { return next(err); }
@@ -20,7 +20,7 @@ module.exports = function(app){
 
       if(!user.token){
         user.generateToken(function(){
-          res.json({userId : user._id, access_token: user.token});
+          res.json({_id : user._id, displayName: user.displayName, access_token: user.token});
         });
       } else {
         res.json(user.token);
@@ -30,20 +30,25 @@ module.exports = function(app){
   });
 
 
-  app.post('/api/login', passport.authenticate('local'), function(req, res) {
-    res.json({userId : req.user._id, access_token: req.user.token});
+  app.post('/api/user/login', passport.authenticate('local'), function(req, res) {
+    var user = req.user;
+    if (user.token){
+      res.json({_id : user._id, displayName: user.displayName, access_token: user.token});
+    } else {
+      user.generateToken(function(token){
+        res.json({_id : user._id, displayName: user.displayName, access_token: token});
+      });
+    }
   });
 
-  app.post('/api/register', function(req, res) {
+  app.post('/api/user/register', function(req, res) {
       //TODO: verify email req.body.username
 
       User.register(new User({ username : req.body.username, emails: [req.body.username] }), req.body.password, function(err, user) {
         user.generateToken(function(token){
-          res.json({userId : user._id, access_token: user.token});
+          res.json({_id : user._id, displayName: user.displayName, access_token: user.token});
         });
       });
   });
-
-
 
 };

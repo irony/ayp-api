@@ -32,6 +32,9 @@
     "express": "~3.4.0",
     "mocha": "~1.17.1",
     "chai": "~1.9.0",
-    "supertest": "~0.9.0"
+    "supertest": "~0.9.0",
+    "pow-mongoose-fixtures": "~0.3.0",
+    "faker": "0.0.6",
+    "charlatan": "~0.1.9"
   }
 }
