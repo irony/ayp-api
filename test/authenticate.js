@@ -1,3 +1,9 @@
+// run tests locally or with test collection
+var nconf = require('nconf');
+nconf.overrides({
+  mongoUrl : 'mongodb://localhost/ayp-test'
+});
+
 var chai      = require('chai')
   , expect    = chai.expect
   , express   = require('express')
@@ -16,12 +22,11 @@ describe('auth', function() {
     var web = express();
     web.use(express.urlencoded());
     web.use(express.json());
+    web.use(express.session(sessionOptions));
     web.use(passport.initialize());
     web.use(passport.session());
 
     app = api.init(web);
-    app.use(express.urlencoded());
-    app.use(express.session(sessionOptions));
   });  
 
   it('should not serve a resource without user logged in', function (done) {

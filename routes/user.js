@@ -12,6 +12,10 @@ module.exports = function(app){
     });
   });
 
+  app.get('/api/user/me', function(req, res, next){
+    res.json(req.user);
+  });
+
   app.get('/api/user/:connector/:callback?', function(req, res, next){
     var connector = connectors[req.params.connector];
     passport.authenticate(connector.name, {scope : connector.scope}, function(err, user, info) {
