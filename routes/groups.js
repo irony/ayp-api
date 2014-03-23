@@ -19,13 +19,20 @@ module.exports = function(app){
         Photo.find({taken : { $in : group.photos }, owners : req.user._id }, 'copies taken store')
         .exec(function(err, photos){
           if (err || !photos.length) return next(err);
+          
+          var best = photos
+          .map(function(photo){ return photo.getMine(req.user) })
+          .sort(function(a,b){
+            return a.vote - b.vote;
+          });
+
           return next(err, {
             _id : group._id,
             from : group.from,
             to: group.to,
             value: group.value,
             src: photos[0].signedSrc,
-            best: photos.map(function(photo){ return photo.getMine(req.user) })
+            best: best
           })
         });
       }, function(err, groups){
