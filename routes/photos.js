@@ -17,6 +17,7 @@ module.exports = function(app){
       if (!photo) return res.send('Could not find photo ' + req.params.id, 403);
       photo.mine = photo.copies[req.user._id]; // only use this user's personal settings
       photo.vote = photo.mine.vote || (photo.mine.calculatedVote);
+      console.log('mine', photo.mine);
 
       if (photo.exif && photo.exif.gps){
         if (photo.exif.gps.length){
