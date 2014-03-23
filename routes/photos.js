@@ -11,7 +11,6 @@ var _ = require('lodash');
 module.exports = function(app){
 
   app.get('/api/photo/:id', function(req, res){
-    if (!req.user) return res.send('Login first..', 500);
 
     Photo.findOne({_id: new ObjectId(req.params.id), owners : req.user._id}, function(err, photo){
       if (err) return res.send('Error finding photo', 500);
@@ -37,9 +36,6 @@ module.exports = function(app){
   });
 
   app.get('/api/photoFeed', function(req, res){
-    if (!req.user){
-      return res.send('Login first', 403);
-    }
 
     var reverse = req.query.reverse === 'true',
         filter = (reverse) ? {$gte : req.query.startDate || new Date()} : {$lte : req.query.startDate || new Date()};
@@ -103,9 +99,6 @@ module.exports = function(app){
   });
 
   app.post('/api/upload', function(req, res, next){
-    if (!req.user){
-      return res.send('Login first', 403);
-    }
 
     var uploadConnector = require('../connectors/upload.js');
     uploadConnector.handleRequest(req, function(err, results, next){

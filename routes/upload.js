@@ -13,9 +13,6 @@ module.exports = function(app){
 
 
   app.post('/api/upload', function(req, res, next){
-    if (!req.user){
-      return res.send('Login first', 403);
-    }
 
     var uploadConnector = Connectors.upload;
     uploadConnector.handleRequest(req, function(err, results, next){

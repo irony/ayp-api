@@ -9,14 +9,14 @@ var async = require('async');
 
 module.exports = function(app){
   
-  app.get('/api/groups', passport.authenticate('bearer'), function(req, res){
+  app.get('/api/groups', function(req, res){
     if (!req.user) return res.send('Login first', 403);
     // return all photos with just bare minimum information for local caching
     Group.find({'userId': req.user._id}, { photos : {$slice : 5}, from: 1, to: 1, value: 1 })
     .sort({'to' : -1})
     .exec(function(err, groups){
       async.map((groups || []), function(group, next){
-        Photo.find({taken : { $in : group.photos }, owners : req.user._id })
+        Photo.find({taken : { $in : group.photos }, owners : req.user._id }, 'copies taken store')
         .exec(function(err, photos){
           if (err || !photos.length) return next(err);
           return next(err, {
