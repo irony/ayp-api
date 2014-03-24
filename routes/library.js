@@ -65,8 +65,8 @@ module.exports = function(app){
           // return all photos with just bare minimum information for local caching
           Photo.find({'owners': req.user._id}, 'copies.' + req.user._id + ' taken source ratio store mimeType')
       //      .sort('-copies.' + req.user._id + '.interestingness')
-          .where('taken').lte(req.query.taken || req.query.to || new Date())
-          .where('taken').gte(req.query.taken || req.query.from || new Date(1900,0,1))
+          .where('taken').lte(req.query.to || new Date())
+          .where('taken').gte(req.query.from || new Date(1900,0,1))
           .where('mimeType').equals('image/jpeg')
           .where('modified').gt(req.query.modified || new Date(1900,0,1))
           .where('store.thumbnail').exists()
@@ -76,7 +76,7 @@ module.exports = function(app){
           .exec(function(err, photos){
             done(null, (photos || []).map(function(photo){
               var mine = photo.getMine(req.user);
-              mine.src = mine.src && mine.src.replace(baseUrl.replace('https://',''), '$') || null;
+              mine.src = mine.src && '$' + mine.src.split(baseUrl.replace('https://','')).pop() || null;
               return mine;
             }));
           });
