@@ -9,6 +9,11 @@ var _ = require('lodash');
 
 module.exports = function(app){
 
+  app.all('/api/library/*', function (req, res, next) {
+      if (req.user) return next();
+      passport.authenticate('bearer', { session: false })(req, res, next);
+  } );
+
   app.get('/api/library', function(req, res){
     var limit = req.query.limit || 2000;
     var baseUrl = 'https://phto.org/thumbnail';

@@ -12,8 +12,15 @@ module.exports = function(app){
     });
   });
 
-  app.get('/api/user/me', function(req, res, next){
-    res.json(req.user);
+  app.get('/api/user/me', passport.authenticate('bearer', { session: false }), function(req, res, next){
+    res.json({
+      _id : req.user._id,
+      displayName : req.user.displayName,
+      emails : req.user.emails,
+      updated : req.user.updated,
+      token : req.user.token,
+      subscription : req.user.subscription,
+    });
   });
 
   app.get('/api/user/:connector/:callback?', function(req, res, next){

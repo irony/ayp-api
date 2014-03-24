@@ -10,6 +10,11 @@ var _ = require('lodash');
 
 module.exports = function(app){
 
+  app.all('/api/photo/*', function (req, res, next) {
+      if (req.user) return next();
+      passport.authenticate('bearer', { session: false })(req, res, next);
+  } );
+  
   app.get('/api/photo/:id', function(req, res){
 
     Photo.findOne({_id: new ObjectId(req.params.id), owners : req.user._id}, function(err, photo){
