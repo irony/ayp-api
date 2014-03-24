@@ -31,10 +31,10 @@ module.exports = function(app){
 
       if(!user.token){
         user.generateToken(function(){
-          res.json({_id : user._id, displayName: user.displayName, access_token: user.token});
+          res.redirect('/me/wall/?access_token=' + user.token);
         });
       } else {
-        res.json(user.token);
+        res.redirect('/me/wall/?access_token=' + user.token);
       }
 
     })(req, res, next);

@@ -18,12 +18,7 @@ var api = module.exports = {
     });
     
 
-    app.all('/api/*', function (req, res, next) {
-        if (req.path == '/api/user/login') return next();
-        if (req.path == '/api/user/register') return next();
-        if (req.user) return next();
-        passport.authenticate('bearer', { session: false })(req, res, next);
-    } );
+   
 
     _.each(api.routes, function(route){
       route(app);

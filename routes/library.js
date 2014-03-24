@@ -14,7 +14,7 @@ module.exports = function(app){
       passport.authenticate('bearer', { session: false })(req, res, next);
   } );
 
-  app.get('/api/library', function(req, res){
+  app.get('/api/library', function(req, res, next){
     var limit = req.query.limit || 2000;
     var baseUrl = 'https://phto.org/thumbnail';
 
@@ -36,6 +36,8 @@ module.exports = function(app){
           return done(null, req.user._id);
       }
     }, function(err, results){
+
+      if (err) throw err;
 
       if (!results.total) return res.json(results);
 
@@ -74,12 +76,14 @@ module.exports = function(app){
           .exec(function(err, photos){
             done(null, (photos || []).map(function(photo){
               var mine = photo.getMine(req.user);
-              mine.src = mine.src && mine.src.replace(baseUrl, '$') || null;
+              mine.src = mine.src && mine.src.replace(baseUrl.replace('https://',''), '$') || null;
               return mine;
             }));
           });
         }
       }, function(err, results){
+
+          if (err) throw err;
 
           var next = results.photos.length > limit && results.photos.pop()[req.query.modified ? 'modified' : 'taken'] || null;
           results.next = next; //(results.photos.length === limit) && last.taken || null;
