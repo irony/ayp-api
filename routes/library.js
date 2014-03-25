@@ -10,11 +10,11 @@ var _ = require('lodash');
 module.exports = function(app){
 
   app.all('/api/library/*', function (req, res, next) {
-      if (req.user) return next();
-      passport.authenticate('bearer', { session: false })(req, res, next);
-  } );
+    if (req.user) return next();
+    passport.authenticate('bearer', { session: false })(req, res, next);
+  });
 
-  app.get('/api/library', function(req, res, next){
+  app.get('/api/library', function(req, res){
     var limit = req.query.limit || 2000;
     var baseUrl = 'https://phto.org/thumbnail';
 
@@ -23,17 +23,30 @@ module.exports = function(app){
     // first check e-tag, this will be adding a little more time but it is worth it?
     async.parallel({
       total : function(done){
-        Photo.find({'owners': req.user._id}).count(done);
+        Photo.find({'owners': req.user._id})
+          .where('taken').lte(req.query.to || new Date())
+          .where('taken').gte(req.query.from || new Date(1900,0,1))
+          .where('mimeType').equals('image/jpeg')
+          .where('modified').gt(req.query.modified || new Date(1900,0,1))
+          .where('store.thumbnail').exists()
+          .count(done);
       },
       modified: function  (done) {
         Photo.findOne({'owners': req.user._id}, 'modified')
+          .where('taken').lte(req.query.to || new Date())
+          .where('taken').gte(req.query.from || new Date(1900,0,1))
+          .where('mimeType').equals('image/jpeg')
+          .where('modified').gt(req.query.modified || new Date(1900,0,1))
+          .where('store.thumbnail').exists()
+          .sort(req.query.modified ? {'modified' : 1} : {'taken' : -1})
+          .skip(req.query.skip)
           .sort({'modified': -1})
           .exec(function(err, photo){
             return done(err, photo && photo.modified);
           });
       },
       userId : function(done){
-          return done(null, req.user._id);
+        return done(null, req.user._id);
       }
     }, function(err, results){
 
@@ -45,8 +58,8 @@ module.exports = function(app){
       res.setHeader('Last-Modified', results.modified);
       res.setHeader('ETag', etag);
 
-      res.setHeader("Cache-Control", "public");
-      res.setHeader("Max-Age", 0);
+      res.setHeader('Cache-Control', 'public');
+      res.setHeader('Max-Age', 0);
 
       if (req.headers['if-none-match'] === etag.toString()) {
         res.statusCode = 304;
@@ -56,7 +69,7 @@ module.exports = function(app){
         console.debug(req.headers);
       }
 
-      res.setHeader("Cache-Control", "max-age=604800, private");
+      res.setHeader('Cache-Control', 'max-age=604800, private');
 
       // if we have new data, let's query it again
       async.parallel({

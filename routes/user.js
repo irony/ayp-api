@@ -12,15 +12,19 @@ module.exports = function(app){
     });
   });
 
+  function me(user){
+    return {
+      _id : user._id,
+      displayName : user.displayName,
+      emails : user.emails,
+      updated : user.updated,
+      token : user.token,
+      subscription : user.subscription,
+    };
+  }
+
   app.get('/api/user/me', passport.authenticate('bearer', { session: false }), function(req, res, next){
-    res.json({
-      _id : req.user._id,
-      displayName : req.user.displayName,
-      emails : req.user.emails,
-      updated : req.user.updated,
-      token : req.user.token,
-      subscription : req.user.subscription,
-    });
+    res.json(me(req.user));
   });
 
   app.get('/api/user/:connector/:callback?', function(req, res, next){
@@ -44,10 +48,10 @@ module.exports = function(app){
   app.post('/api/user/login', passport.authenticate('local'), function(req, res) {
     var user = req.user;
     if (user.token){
-      res.json({_id : user._id, displayName: user.displayName, access_token: user.token});
+      res.json(me(req.user));
     } else {
-      user.generateToken(function(token){
-        res.json({_id : user._id, displayName: user.displayName, access_token: token});
+      user.generateToken(function(){
+        res.json(me(req.user));
       });
     }
   });
@@ -56,8 +60,8 @@ module.exports = function(app){
       //TODO: verify email req.body.username
 
       User.register(new User({ username : req.body.username, emails: [req.body.username] }), req.body.password, function(err, user) {
-        user.generateToken(function(token){
-          res.json({_id : user._id, displayName: user.displayName, access_token: user.token});
+        user.generateToken(function(){
+          res.json(me(req.user));
         });
       });
   });
