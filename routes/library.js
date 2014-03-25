@@ -48,7 +48,7 @@ module.exports = function(app){
       res.setHeader("Cache-Control", "public");
       res.setHeader("Max-Age", 0);
 
-      if (false && req.headers['if-none-match'] === etag.toString()) {
+      if (req.headers['if-none-match'] === etag.toString()) {
         res.statusCode = 304;
         console.log('304');
         return res.end();
