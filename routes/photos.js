@@ -1,19 +1,14 @@
 var Photo = require('AllYourPhotosModels').photo;
-var Group = require('AllYourPhotosModels').group;
-var User = require('AllYourPhotosModels').user;
-var fs = require('fs');
-var path = require('path');
-var moment = require('moment');
+var passport = require('AllYourPhotosModels').passport;
 var async = require('async');
 var ObjectId = require('mongoose').Types.ObjectId;
-var _ = require('lodash');
 
 module.exports = function(app){
 
   app.all('/api/photo/*', function (req, res, next) {
-      if (req.user) return next();
-      passport.authenticate('bearer', { session: false })(req, res, next);
-  } );
+    if (req.user) return next();
+    passport.authenticate('bearer', { session: false })(req, res, next);
+  });
   
   app.get('/api/photo/:id', function(req, res){
 
@@ -27,15 +22,18 @@ module.exports = function(app){
       if (photo.exif && photo.exif.gps){
         if (photo.exif.gps.length){
           photo.exif.gps = photo.exif.gps.reduce(function(gps, tag){
-          gps[tag.tagName] = tag.value;
-          return gps;
+            gps[tag.tagName] = tag.value;
+            return gps;
           }, {});
         }
         photo.metadata = photo.metadata || {};
-        if (photo.exif.gps.GPSLatitude && photo.exif.gps.GPSLatitude.length)
-          photo.metadata.position = {lat: parseFloat(photo.exif.gps.GPSLatitude[0] + "." + photo.exif.gps.GPSLatitude[1],10), lng: parseFloat(photo.exif.gps.GPSLongitude[0] + "." + photo.exif.gps.GPSLongitude[1],10)};
+        if (photo.exif.gps.GPSLatitude && photo.exif.gps.GPSLatitude.length){
+          photo.metadata.position = {
+            lat: parseFloat(photo.exif.gps.GPSLatitude[0] + '.' + photo.exif.gps.GPSLatitude[1],10),
+            lng: parseFloat(photo.exif.gps.GPSLongitude[0] + '.' + photo.exif.gps.GPSLongitude[1],10)
+          };
+        }
       }
-
 
       res.json(photo);
     });
@@ -104,19 +102,20 @@ module.exports = function(app){
     });
   });
 
-  app.post('/api/upload', function(req, res, next){
+  app.post('/api/upload', function(req, res){
 
     var uploadConnector = require('../connectors/upload.js');
-    uploadConnector.handleRequest(req, function(err, results, next){
+    uploadConnector.handleRequest(req, function(err, results){
       if (err) {
         console.log('Error: upload aborted: '.red, err);
         res.status(500).json(err.toString());
         return res.end();
       }
+
       try{
         res.json(results);
-      } catch (err){
-        console.log('Error: Could not send response: '.red, err);
+      } catch (ex){
+        console.log('Error: Could not send response: '.red, ex);
         return res.end();
       }
     });
@@ -132,11 +131,10 @@ module.exports = function(app){
       res.writeHead(403);
       return res.json({error:'Login first'});
     }
-    
 
     if (!req.body.dateRange){
       res.writeHead(500);
-      return res.json("No daterange");
+      return res.json('No daterange');
     }
 
     Photo.find({'owners': req.user._id})
@@ -144,16 +142,12 @@ module.exports = function(app){
     .where('taken').gte(startDate).lte(stopDate)
     .sort('-taken')
     .exec(function(err, photos){
-
       async.map((photos || []), function(photo, done){
         photo.metadata = null;
         return done(null, photo);
       }, function(err, photos){
         return res.json(photos);
       });
-
-
     });
   });
-
 };

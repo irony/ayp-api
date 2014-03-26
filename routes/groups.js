@@ -1,12 +1,17 @@
 var Group = require('AllYourPhotosModels').group;
+var passport   = require('AllYourPhotosModels').passport;
 var _ = require('lodash');
 var async = require('async');
 
 module.exports = function (app) {
   
+  app.all('/api/groups*', function (req, res, next) {
+    if (req.user) return next();
+    passport.authenticate('bearer', { session: false })(req, res, next);
+  });
+
   app.get('/api/groups', function (req, res) {
     if (!req.user) return res.send('Login first', 403);
-
 
     // first check e-tag, this will be adding a little more time but it is worth it?
     async.parallel({
@@ -47,7 +52,7 @@ module.exports = function (app) {
       res.setHeader('Cache-Control', 'max-age=604800, private');
 
       // return all photos with just bare minimum information for local caching
-      Group.find({ 'userId': req.user }, { photos : {$slice : 5}, from: 1, to: 1, value: 1 })
+      Group.find({ 'userId': req.user }, { photos : {$slice : 1}, from: 1, to: 1, value: 1 })
       .sort({'to' : -1})
       .populate('photos', 'copies taken store')
       .exec(function(err, groups){
@@ -66,6 +71,7 @@ module.exports = function (app) {
             to: group.to,
             value: group.value,
             src: group.photos[0].signedSrc,
+            ratio: group.photos[0].ratio,
             best: best
           });
         }, function(err, groups){

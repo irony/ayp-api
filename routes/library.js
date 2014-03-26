@@ -1,11 +1,6 @@
 var Photo = require('AllYourPhotosModels').photo;
-var Group = require('AllYourPhotosModels').group;
 var passport   = require('AllYourPhotosModels').passport;
-var User = require('AllYourPhotosModels').user;
-var nconf = require('nconf');
 var async = require('async');
-var ObjectId = require('mongoose').Types.ObjectId;
-var _ = require('lodash');
 
 module.exports = function(app){
 
@@ -16,7 +11,7 @@ module.exports = function(app){
 
   app.get('/api/library', function(req, res){
     var limit = req.query.limit || 2000;
-    var baseUrl = 'https://phto.org/thumbnail';
+    //var baseUrl = 'https://a.phto.org/thumbnail';
 
     if (!req.user) return res.send('Login first', 403);
 
@@ -74,10 +69,7 @@ module.exports = function(app){
       // if we have new data, let's query it again
       async.parallel({
         photos : function(done){
-
-          // return all photos with just bare minimum information for local caching
           Photo.find({'owners': req.user._id}, 'copies.' + req.user._id + ' taken source ratio store mimeType')
-      //      .sort('-copies.' + req.user._id + '.interestingness')
           .where('taken').lte(req.query.to || new Date())
           .where('taken').gte(req.query.from || new Date(1900,0,1))
           .where('mimeType').equals('image/jpeg')
@@ -89,26 +81,22 @@ module.exports = function(app){
           .exec(function(err, photos){
             done(null, (photos || []).map(function(photo){
               var mine = photo.getMine(req.user);
-              mine.src = mine.src && '$' + mine.src.split(baseUrl.replace('https://','')).pop() || null;
+              mine.src = mine.src; // && '$' + mine.src.split(baseUrl.replace('https://','')).pop() || null;
               return mine;
             }));
           });
         }
       }, function(err, results){
-
-          if (err) throw err;
-
-          var next = results.photos.length > limit && results.photos.pop()[req.query.modified ? 'modified' : 'taken'] || null;
-          results.next = next; //(results.photos.length === limit) && last.taken || null;
-          results.baseUrl = baseUrl;
-          results.photos = results.photos || [];
-          if (results.photos.length){
-            results.from = results.photos[0].taken;
-            results.to = results.photos.slice(-1).pop().taken;
-          }
-
-          return res.json(results);
-
+        if (err) throw err;
+        var next = results.photos.length > limit && results.photos.pop()[req.query.modified ? 'modified' : 'taken'] || null;
+        results.next = next; //(results.photos.length === limit) && last.taken || null;
+        //results.baseUrl = baseUrl;
+        results.photos = results.photos || [];
+        if (results.photos.length){
+          results.from = results.photos[0].taken;
+          results.to = results.photos.slice(-1).pop().taken;
+        }
+        return res.json(results);
       });
     });
 

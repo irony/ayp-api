@@ -7,7 +7,8 @@ module.exports = function(app){
 
 
   app.get('/api/user/exist', function(req, res){
-    User.find({'emails.value':req.query.q}).or({username : req.query.q}).or({emails : req.query.q}).count(function(err, result){
+    User.find({'emails':req.query.q}).or({username : req.query.q}).or({emails : req.query.q}).count(function(err, result){
+      console.log(arguments)
       return res.json(result > 0);
     });
   });
@@ -18,7 +19,7 @@ module.exports = function(app){
       displayName : user.displayName,
       emails : user.emails,
       updated : user.updated,
-      token : user.token,
+      access_token : user.token,
       subscription : user.subscription,
     };
   }
