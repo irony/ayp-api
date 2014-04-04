@@ -48,13 +48,9 @@ module.exports = function(app){
 
   app.post('/api/user/login', passport.authenticate('local'), function(req, res) {
     var user = req.user;
-    if (user.token){
+    user.generateToken(function(){
       res.json(me(req.user));
-    } else {
-      user.generateToken(function(){
-        res.json(me(req.user));
-      });
-    }
+    });
   });
 
   app.post('/api/user/register', function(req, res) {
