@@ -11,7 +11,7 @@ module.exports = function(app){
 
   app.get('/api/library', function(req, res){
     var limit = req.query.limit || 2000;
-    //var baseUrl = 'https://a.phto.org/thumbnail';
+    var baseUrl = 'http://a.phto.org/thumbnail';
 
     if (!req.user) return res.send('Login first', 403);
 
@@ -22,7 +22,6 @@ module.exports = function(app){
           .where('taken').lte(req.query.to || new Date())
           .where('taken').gte(req.query.from || new Date(1900,0,1))
           .where('mimeType').equals('image/jpeg')
-          .where('modified').gt(req.query.modified || new Date(1900,0,1))
           .where('store.thumbnail').exists()
           .count(done);
       },
@@ -31,10 +30,7 @@ module.exports = function(app){
           .where('taken').lte(req.query.to || new Date())
           .where('taken').gte(req.query.from || new Date(1900,0,1))
           .where('mimeType').equals('image/jpeg')
-          .where('modified').gt(req.query.modified || new Date(1900,0,1))
           .where('store.thumbnail').exists()
-          .sort(req.query.modified ? {'modified' : 1} : {'taken' : -1})
-          .skip(req.query.skip)
           .sort({'modified': -1})
           .exec(function(err, photo){
             return done(err, photo && photo.modified);
@@ -73,15 +69,13 @@ module.exports = function(app){
           .where('taken').lte(req.query.to || new Date())
           .where('taken').gte(req.query.from || new Date(1900,0,1))
           .where('mimeType').equals('image/jpeg')
-          .where('modified').gt(req.query.modified || new Date(1900,0,1))
           .where('store.thumbnail').exists()
-          .sort(req.query.modified ? {'modified' : 1} : {'taken' : -1})
-          .skip(req.query.skip)
+          .sort({'taken' : -1})
           .limit(parseInt(limit,10) +  1)
           .exec(function(err, photos){
             done(null, (photos || []).map(function(photo){
               var mine = photo.getMine(req.user);
-              mine.src = mine.src; // && '$' + mine.src.split(baseUrl.replace('https://','')).pop() || null;
+              mine.src = mine.src && '$' + mine.src.split(baseUrl.replace('http://','')).pop() || null;
               return mine;
             }));
           });
@@ -90,7 +84,7 @@ module.exports = function(app){
         if (err) throw err;
         var next = results.photos.length > limit && results.photos.pop()[req.query.modified ? 'modified' : 'taken'] || null;
         results.next = next; //(results.photos.length === limit) && last.taken || null;
-        //results.baseUrl = baseUrl;
+        results.baseUrl = baseUrl;
         results.photos = results.photos || [];
         if (results.photos.length){
           results.from = results.photos[0].taken;
