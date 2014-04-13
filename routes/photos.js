@@ -17,23 +17,7 @@ module.exports = function(app){
       if (!photo) return res.send('Could not find photo ' + req.params.id, 403);
       photo.mine = photo.copies[req.user._id]; // only use this user's personal settings
       photo.vote = photo.mine.vote || (photo.mine.calculatedVote);
-
-      if (photo.exif && photo.exif.gps){
-        if (photo.exif.gps.length){
-          photo.exif.gps = photo.exif.gps.reduce(function(gps, tag){
-            gps[tag.tagName] = tag.value;
-            return gps;
-          }, {});
-        }
-        photo.metadata = photo.metadata || {};
-        if (photo.exif.gps.GPSLatitude && photo.exif.gps.GPSLatitude.length){
-          photo.metadata.position = {
-            lat: parseFloat(photo.exif.gps.GPSLatitude[0] + '.' + photo.exif.gps.GPSLatitude[1],10),
-            lng: parseFloat(photo.exif.gps.GPSLongitude[0] + '.' + photo.exif.gps.GPSLongitude[1],10)
-          };
-        }
-      }
-
+      photo.exif = undefined; // save bandwidth - location is alreday parsed if present
       res.json(photo);
     });
   });
