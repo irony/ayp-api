@@ -1,19 +1,13 @@
 var Photo = require('AllYourPhotosModels').photo;
-var Group = require('AllYourPhotosModels').group;
-var User = require('AllYourPhotosModels').user;
-var fs = require('fs');
-var path = require('path');
-var moment = require('moment');
+var passport = require('AllYourPhotosModels').passport;
 var async = require('async');
-var ObjectId = require('mongoose').Types.ObjectId;
-var _ = require('lodash');
 
 module.exports = function(app){
 
   app.all('/api/stats/*', function (req, res, next) {
-      if (req.user) return next();
-      passport.authenticate('bearer', { session: false })(req, res, next);
-  } );
+    if (req.user && req.user._id) return next();
+    passport.authenticate('bearer', { session: false })(req, res, next);
+  });
 
   app.get('/api/stats', function(req, res){
 

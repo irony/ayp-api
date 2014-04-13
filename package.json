@@ -21,6 +21,7 @@
     "redis": "*",
     "async": "*",
     "nconf": "*",
+    "kue": "*",
     "moment": "*",
     "knox": "*",
     "require-dir": "~0.1.0",

@@ -1,14 +1,12 @@
 var User       = require('AllYourPhotosModels').user,
     passport   = require('AllYourPhotosModels').passport,
-    connectors = require('AllYourPhotosConnectors')(),
-    _          = require('lodash');
+    connectors = require('AllYourPhotosConnectors')();
 
 module.exports = function(app){
 
 
   app.get('/api/user/exist', function(req, res){
     User.find({'emails':req.query.q}).or({username : req.query.q}).or({emails : req.query.q}).count(function(err, result){
-      console.log(arguments)
       return res.json(result > 0);
     });
   });
@@ -36,10 +34,10 @@ module.exports = function(app){
 
       if(!user.token){
         user.generateToken(function(){
-          res.redirect('/me/wall/?access_token=' + user.token);
+          res.redirect('/me/wall/#access_token=' + user.token);
         });
       } else {
-        res.redirect('/me/wall/?access_token=' + user.token);
+        res.redirect('/me/wall/#access_token=' + user.token);
       }
 
     })(req, res, next);
@@ -54,13 +52,12 @@ module.exports = function(app){
   });
 
   app.post('/api/user/register', function(req, res) {
-      //TODO: verify email req.body.username
-
-      User.register(new User({ username : req.body.username, emails: [req.body.username] }), req.body.password, function(err, user) {
-        user.generateToken(function(){
-          res.json(me(req.user));
-        });
+    //TODO: verify email req.body.username
+    User.register(new User({ username : req.body.username, emails: [req.body.username] }), req.body.password, function(err, user) {
+      user.generateToken(function(){
+        res.json(me(req.user));
       });
+    });
   });
 
 };
