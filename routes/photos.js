@@ -87,8 +87,8 @@ module.exports = function(app){
 
   app.post('/api/upload', function(req, res){
 
-    var uploadConnector = require('../connectors/upload.js');
-    uploadConnector.handleRequest(req, function(err, results){
+    var uploadHandler = require('AllYourPhotosJobs').uploadHandler;
+    uploadHandler.handleRequest(req, function(err, results){
       if (err) {
         console.log('Error: upload aborted: '.red, err);
         res.status(500).json(err.toString());

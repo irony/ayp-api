@@ -16,6 +16,7 @@
   "dependencies": {
     "AllYourPhotosModels": "irony/ayp-models",
     "AllYourPhotosConnectors": "irony/ayp-connectors",
+    "AllYourPhotosJobs": "irony/ayp-jobs",
     "lodash": "*",
     "mongoose": "*",
     "redis": "*",

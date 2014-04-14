@@ -1,21 +1,12 @@
-var Photo = require('AllYourPhotosModels').photo;
-var Group = require('AllYourPhotosModels').group;
-var User = require('AllYourPhotosModels').user;
-var Connectors = require('AllYourPhotosConnectors');
-var fs = require('fs');
-var path = require('path');
-var moment = require('moment');
-var async = require('async');
-var ObjectId = require('mongoose').Types.ObjectId;
-var _ = require('lodash');
+var jobs = require('AllYourPhotosJobs');
 
 module.exports = function(app){
 
 
-  app.post('/api/upload', function(req, res, next){
+  app.post('/api/upload', function(req, res){
 
-    var uploadConnector = Connectors.upload;
-    uploadConnector.handleRequest(req, function(err, results, next){
+    var uploadConnector = jobs.uploadHandler;
+    uploadConnector.handleRequest(req, function(err, results){
       if (err) {
         console.log('Error: upload aborted: '.red, err);
         res.status(500).json(err.toString());
@@ -23,8 +14,8 @@ module.exports = function(app){
       }
       try{
         res.json(results);
-      } catch (err){
-        console.log('Error: Could not send response: '.red, err);
+      } catch (ex){
+        console.log('Error: Could not send response: '.red, ex);
         res.end();
       }
     });
