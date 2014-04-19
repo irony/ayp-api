@@ -62,7 +62,7 @@ module.exports = function (app) {
           if (!group.photos.length) return next(null, null);
 
           var best = group.photos.map(function(photo){
-            return photo.getMine(req.user);
+            return photo.getMine(req.user._id);
           });
 
           return next(err, {

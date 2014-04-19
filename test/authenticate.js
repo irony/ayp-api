@@ -89,7 +89,7 @@ describe('auth', function() {
       if (err) throw err;
       token = res.body['access_token'];
       request(app)
-      .post('/api/login')
+      .post('/api/user/login')
       .send({ username : 'test' + random, password:'test' })
       .expect(200)
       .end(function(err, res) {

@@ -1,6 +1,7 @@
 var Photo = require('AllYourPhotosModels').photo;
 var passport = require('AllYourPhotosModels').passport;
 var async = require('async');
+var signal = require('../signal');
 var ObjectId = require('mongoose').Types.ObjectId;
 
 module.exports = function(app){
@@ -9,7 +10,72 @@ module.exports = function(app){
     if (req.user) return next();
     passport.authenticate('bearer', { session: false })(req, res, next);
   });
-  
+
+  app.get('/api/photo/cameras', function(req, res, next){
+    Photo.aggregate([
+      {
+        $match: {
+          owners: req.user._id
+        }
+      },
+      {
+        $project: {
+          lensMake: '$exif.exif.LensMake',
+          lens: '$exif.exif.LensModel',
+          camera: '$exif.exif.SerialNumber'
+        }
+      },
+      {
+        $group: {
+          _id: {maker : '$lensMake', camera: '$camera'},
+          lens: { $addToSet: '$lens' },
+          // TODO: crawl: 
+          // https://www.google.se/search?q=EF24-105mm+f/4L+IS+USM&safe=off&es_sm=91&source=lnms&tbm=isch
+          count: { $sum: 1 }
+        }
+      }
+    ], {}, function(err, cameras){
+      if (err) return next(err);
+      res.json(cameras);
+    });
+
+  });
+
+  // app.get('/api/photo/timezones', function(req, res, next){
+  //   Photo.aggregate([
+  //     {
+  //       $match: {
+  //         owners: req.user._id
+  //       }
+  //     },
+  //     {
+  //       $unwind: '$exif.gps.GPSLongitude'
+  //     },
+  //     {
+  //       $project: {
+  //         longitude: '$exif.gps.GPSLongitude',
+  //         longitudeRef: '$exif.gps.GPSLongitudeRef',
+  //       }
+  //     },
+  //     {
+  //       $group: {
+  //         _id: '$_id',
+  //         mainLongitude: {$first: '$longitude'},
+  //       }
+  //     },
+  //     {
+  //       $group: {
+  //         _id: {'$mainLongitude': 1, '$longitudeRef': 1},
+  //         sum: {$sum: 1},
+  //       }
+  //     }
+  //   ], {}, function(err, cameras){
+  //     if (err) return next(err);
+  //     res.json(cameras);
+  //   });
+
+  // });
+
   app.get('/api/photo/:id', function(req, res){
 
     Photo.findOne({_id: new ObjectId(req.params.id), owners : req.user._id}, function(err, photo){
@@ -21,6 +87,7 @@ module.exports = function(app){
       res.json(photo);
     });
   });
+
 
   app.get('/api/photoFeed', function(req, res){
 
@@ -57,7 +124,7 @@ module.exports = function(app){
 
         // Allow at least one fourth of the photos in the group.
         // And then only add photos which similar time diff compared to the rest of the photos
-        // This is to prevent "horungar" from being added to a group
+        // This is to prevent 'horungar' from being added to a group
         if (a.length <= photos.length / 4 || b.timeDiff < diffAverage * 1.5) a.push(b);
 
         return a;
@@ -97,6 +164,7 @@ module.exports = function(app){
 
       try{
         res.json(results);
+        signal.cluster(req.user);
       } catch (ex){
         console.log('Error: Could not send response: '.red, ex);
         return res.end();
@@ -105,29 +173,24 @@ module.exports = function(app){
     
   });
 
-  app.post('/api/photoRange', function(req, res){
+  //http://www.allyourphotos.org/upload?image=http://app4.pixlr.com/_temp/534e688dd535cfc8a30000c4.jpg&type=jpg&title=Namnl%C3%B6s&state=replace
 
-    var startDate = req.body.dateRange.split(' - ')[0],
-    stopDate = req.body.dateRange.split(' - ')[1];
+
+  app.post('/api/photoRange', function(req, res){
 
     if (!req.user){
       res.writeHead(403);
       return res.json({error:'Login first'});
     }
 
-    if (!req.body.dateRange){
-      res.writeHead(500);
-      return res.json('No daterange');
-    }
-
     Photo.find({'owners': req.user._id})
     .limit(500)
-    .where('taken').gte(startDate).lte(stopDate)
+    .where('taken').gte(req.body.from).lte(req.body.to)
+    .where('copies.' + req.user._id + '.vote').lte(req.vote || 10)
     .sort('-taken')
     .exec(function(err, photos){
       async.map((photos || []), function(photo, done){
-        photo.metadata = null;
-        return done(null, photo);
+        return done(null, photo.getMine(req.user));
       }, function(err, photos){
         return res.json(photos);
       });

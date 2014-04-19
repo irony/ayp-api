@@ -16,9 +16,6 @@ var api = module.exports = {
     app.options('/api/*', function(req, res, next) {
       res.send(200);
     });
-    
-
-   
 
     _.each(api.routes, function(route){
       route(app);

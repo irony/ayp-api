@@ -10,6 +10,11 @@ module.exports = function(app){
   });
 
   app.get('/api/library', function(req, res){
+    console.log(req.query.userId, req.user._id);
+
+    // prevent caching between users
+    if (req.query.userId && req.query.userId !== req.user._id.toString()) return res.send('Login first', 403);
+
     var limit = req.query.limit || 2000;
     var baseUrl = 'http://a.phto.org/thumbnail';
 
@@ -21,16 +26,12 @@ module.exports = function(app){
         Photo.find({'owners': req.user._id})
           .where('taken').lte(req.query.to || new Date())
           .where('taken').gte(req.query.from || new Date(1900,0,1))
-          .where('mimeType').equals('image/jpeg')
-          .where('store.thumbnail').exists()
           .count(done);
       },
       modified: function  (done) {
         Photo.findOne({'owners': req.user._id}, 'modified')
           .where('taken').lte(req.query.to || new Date())
           .where('taken').gte(req.query.from || new Date(1900,0,1))
-          .where('mimeType').equals('image/jpeg')
-          .where('store.thumbnail').exists()
           .sort({'modified': -1})
           .exec(function(err, photo){
             return done(err, photo && photo.modified);
@@ -68,13 +69,11 @@ module.exports = function(app){
           Photo.find({'owners': req.user._id}, 'copies.' + req.user._id + ' taken source ratio store mimeType')
           .where('taken').lte(req.query.to || new Date())
           .where('taken').gte(req.query.from || new Date(1900,0,1))
-          .where('mimeType').equals('image/jpeg')
-          .where('store.thumbnail').exists()
           .sort({'taken' : -1})
           .limit(parseInt(limit,10) +  1)
           .exec(function(err, photos){
             done(null, (photos || []).map(function(photo){
-              var mine = photo.getMine(req.user);
+              var mine = photo.getMine(req.user._id);
               mine.src = mine.src && '$' + mine.src.split(baseUrl.replace('http://','')).pop() || null;
               return mine;
             }));

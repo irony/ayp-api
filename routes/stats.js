@@ -1,5 +1,6 @@
 var Photo = require('AllYourPhotosModels').photo;
 var passport = require('AllYourPhotosModels').passport;
+var ip = require('ip').address();
 var async = require('async');
 
 module.exports = function(app){
@@ -48,11 +49,6 @@ module.exports = function(app){
           .where('exif').exists(true)
           .count(done);
       },
-      interesting: function  (done) {
-        Photo.find({'owners': req.user._id})
-          .where('copies.' + req.user._id + '.interestingness').gte(100)
-          .count(done);
-      },
       dropbox: function  (done) {
         Photo.find({'owners': req.user._id})
           .where('source').equals('dropbox')
@@ -62,6 +58,9 @@ module.exports = function(app){
         Photo.find({'owners': req.user._id})
           .where('source').equals('manual')
           .count(done);
+      },
+      ip: function(done){
+        return done(null, ip);
       },
       modified: function  (done) {
         Photo.findOne({'owners': req.user._id}, 'modified')

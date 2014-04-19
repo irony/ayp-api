@@ -1,12 +1,15 @@
 var User       = require('AllYourPhotosModels').user,
     passport   = require('AllYourPhotosModels').passport,
+    signal     = require('../signal'),
     connectors = require('AllYourPhotosConnectors')();
 
 module.exports = function(app){
 
 
   app.get('/api/user/exist', function(req, res){
-    User.find({'emails':req.query.q}).or({username : req.query.q}).or({emails : req.query.q}).count(function(err, result){
+    req.session.brute++;
+    if (req.session.brute > 20) return res.send('I\'m flattered since you are trying, no more brute attacks please. ;)', 418);
+    User.find({'emails':req.query.q}).or({username : req.query.q}).count(function(err, result){
       return res.json(result > 0);
     });
   });
@@ -31,14 +34,15 @@ module.exports = function(app){
     passport.authenticate(connector.name, {scope : connector.scope}, function(err, user, info) {
       if (err) { return next(err); }
       if (!user) { return res.send('Incorrect credentials', 401); }
-
-      if(!user.token){
-        user.generateToken(function(){
+      req.logIn(user, function(){
+        if(!user.token){
+          user.generateToken(function(){
+            res.redirect('/me/wall/#access_token=' + user.token);
+          });
+        } else {
           res.redirect('/me/wall/#access_token=' + user.token);
-        });
-      } else {
-        res.redirect('/me/wall/#access_token=' + user.token);
-      }
+        }
+      });
 
     })(req, res, next);
   });
@@ -48,6 +52,7 @@ module.exports = function(app){
     var user = req.user;
     user.generateToken(function(){
       res.json(me(req.user));
+      signal.scan(req.user);
     });
   });
 
@@ -58,7 +63,7 @@ module.exports = function(app){
         console.log(err);
         return next(err);
       }
-      user.generateToken(function(){
+      req.logIn(user, function(){
         res.json(me(user));
       });
     });
