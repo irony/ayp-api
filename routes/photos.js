@@ -183,7 +183,7 @@ module.exports = function(app){
       return res.json({error:'Login first'});
     }
 
-    Photo.find({'owners': req.user._id})
+    Photo.find({'owners': req.user._id}, 'src vote')
     .limit(500)
     .where('taken').gte(req.body.from).lte(req.body.to)
     .where('copies.' + req.user._id + '.vote').lte(req.vote || 10)

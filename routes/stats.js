@@ -36,27 +36,10 @@ module.exports = function(app){
         Photo.find()
         .where('store.thumbnail.stored').exists(false)
         // .where('store.lastTry').gte(new Date() - 24 * 60 * 60 * 1000) // skip photos with previous download problems
-        .where('store.error').exists(false) // skip photos with previous download problems
         .count(done);
       },
       errors: function  (done) {
         Photo.find({'owners': req.user._id})
-          .where('store.error').exists(true)
-          .count(done);
-      },
-      exif: function  (done) {
-        Photo.find({'owners': req.user._id})
-          .where('exif').exists(true)
-          .count(done);
-      },
-      dropbox: function  (done) {
-        Photo.find({'owners': req.user._id})
-          .where('source').equals('dropbox')
-          .count(done);
-      },
-      manual: function  (done) {
-        Photo.find({'owners': req.user._id})
-          .where('source').equals('manual')
           .count(done);
       },
       ip: function(done){

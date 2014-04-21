@@ -69,7 +69,7 @@ module.exports = function (app) {
             _id : group._id,
             from : group.from,
             to: group.to,
-            value: group.value,
+            index: group.index,
             src: group.photos[0].signedSrc,
             ratio: group.photos[0].ratio,
             best: best

@@ -8,7 +8,7 @@ module.exports = function(app){
 
   app.get('/api/user/exist', function(req, res){
     req.session.brute++;
-    if (req.session.brute > 20) return res.send('I\'m flattered since you are trying, no more brute attacks please. ;)', 418);
+    if (req.session.brute > 20) return res.send('I\'m flattered that you are trying, no more brute attacks please. ;)', 418);
     User.find({'emails':req.query.q}).or({username : req.query.q}).count(function(err, result){
       return res.json(result > 0);
     });
@@ -52,8 +52,8 @@ module.exports = function(app){
     var user = req.user;
     user.generateToken(function(){
       res.json(me(req.user));
-      signal.scan(req.user);
     });
+    signal.scan(req.user);
   });
 
   app.post('/api/user/register', function(req, res, next) {
