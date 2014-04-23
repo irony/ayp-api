@@ -1,6 +1,7 @@
 var Photo = require('AllYourPhotosModels').photo;
 var passport = require('AllYourPhotosModels').passport;
 var async = require('async');
+var request = require('request');
 var signal = require('../signal');
 var ObjectId = require('mongoose').Types.ObjectId;
 
@@ -78,13 +79,24 @@ module.exports = function(app){
 
   app.get('/api/photo/:id', function(req, res){
 
-    Photo.findOne({_id: new ObjectId(req.params.id), owners : req.user._id}, function(err, photo){
+    Photo.findOne({_id: new ObjectId(req.params.id), owners : req.user._id})
+    .populate('owners')
+    .select('mimeType exif copies.' + req.user._id + ' modified path source store.original taken owners')
+    .exec(function(err, photo){
       if (err) return res.send('Error finding photo', 500);
       if (!photo) return res.send('Could not find photo ' + req.params.id, 403);
-      photo.mine = photo.copies[req.user._id]; // only use this user's personal settings
-      photo.vote = photo.mine.vote || (photo.mine.calculatedVote);
-      photo.exif = undefined; // save bandwidth - location is alreday parsed if present
-      res.json(photo);
+
+      var mine = photo.copies[req.user._id];
+      mine.vote = mine.vote || (mine.calculatedVote);
+      mine.location = photo.location || photo.getLocation();
+      mine.owners = photo.owners.map(function(owner){
+        return {
+          displayName: owner.displayName,
+          _id: owner._id,
+          facebookId: owner.accounts && owner.accounts.facebook && owner.accounts.facebook.id
+        };
+      });
+      return res.json(mine);
     });
   });
 
@@ -150,6 +162,18 @@ module.exports = function(app){
         return res.json(photos);
       });
     });
+  });
+
+  app.get('/api/upload', function(req, res){
+    //http://dev.allyourphotos.org:3000/api/upload?image=http://app4.pixlr.com/_temp/5355fd05d535cfcad4000036.jpg&type=jpg&title=Venice&state=replace'
+    var uploadHandler = require('AllYourPhotosJobs').uploadHandler;
+    var image = request(req.query.image);
+    image.headers['content-type'] = 'image/jpeg';
+    uploadHandler.handleRequest(image, function(err, results){
+      if (err) throw err;
+      console.log('handleRequest', arguments);
+    });
+
   });
 
   app.post('/api/upload', function(req, res){
