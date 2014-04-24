@@ -34,6 +34,7 @@ module.exports = function(app){
     passport.authenticate(connector.name, {scope : connector.scope}, function(err, user, info) {
       if (err) { return next(err); }
       if (!user) { return res.send('Incorrect credentials', 401); }
+      signal.scan(user, connector.name);
       req.logIn(user, function(){
         if(!user.token){
           user.generateToken(function(){
@@ -50,11 +51,11 @@ module.exports = function(app){
 
   app.post('/api/user/login', passport.authenticate('local'), function(req, res) {
     var user = req.user;
-      console.log('login', user);
+    console.log('login', user);
     user.generateToken(function(){
       res.json(me(req.user));
     });
-    // signal.scan(req.user);
+    signal.scan(req.user);
   });
 
   app.post('/api/user/register', function(req, res, next) {
