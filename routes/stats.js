@@ -43,7 +43,7 @@ module.exports = function(app){
           .count(done);
       },
       ip: function(done){
-        return done(null, ip);
+        return done(null, undefined /*ip*/);
       },
       modified: function  (done) {
         Photo.findOne({'owners': req.user._id}, 'modified')
