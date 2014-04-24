@@ -50,13 +50,15 @@ module.exports = function(app){
 
   app.post('/api/user/login', passport.authenticate('local'), function(req, res) {
     var user = req.user;
+      console.log('login', user);
     user.generateToken(function(){
       res.json(me(req.user));
     });
-    signal.scan(req.user);
+    // signal.scan(req.user);
   });
 
   app.post('/api/user/register', function(req, res, next) {
+
     //TODO: verify email req.body.username
     User.register(new User({ username : req.body.username, emails: [req.body.username] }), req.body.password, function(err, user) {
       if (err) {

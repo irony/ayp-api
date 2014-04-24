@@ -6,7 +6,6 @@ var _ = require('lodash'),
 var api = module.exports = {
   routes : require('require-dir')('./routes'),
   init : function(app){
-
     app.all('/api/*', function(req, res, next) {
       res.header("Access-Control-Allow-Origin", "*");
       res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept, Authorization");
@@ -20,7 +19,6 @@ var api = module.exports = {
     _.each(api.routes, function(route){
       route(app);
     });
-
     passport.use(new BearerStrategy(
       function(token, done) {
         User.findOne({ token: token }, function (err, user) {

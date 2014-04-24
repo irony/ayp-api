@@ -89,6 +89,7 @@ module.exports = function(app){
       var mine = photo.copies[req.user._id];
       mine.vote = mine.vote || (mine.calculatedVote);
       mine.location = photo.location || photo.getLocation();
+      mine.store = photo.store || {};
       mine.owners = photo.owners.map(function(owner){
         return {
           displayName: owner.displayName,
