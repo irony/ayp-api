@@ -11,13 +11,13 @@ module.exports = {
   scan: function(user, connector) {
     var connectors = [];
 
-    if (!user.accounts ||  !user.accounts.length) return;
-
     if (!connector) {
+      if (!user.accounts ||  !user.accounts.length) throw new Error('No connectors for this user, specify an connector instead');
       connectors = Object.keys(user.accounts);
     } else {
       connectors = [connector];
     }
+    console.log('scan', user, connector);
 
     var job = queue.create('importUserPhotos', {
       title: user.displayName + 's import for ' + connector + ', via API',
