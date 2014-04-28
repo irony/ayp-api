@@ -1,6 +1,6 @@
 var Photo = require('AllYourPhotosModels').photo;
 var passport = require('AllYourPhotosModels').passport;
-var ip = require('ip').address();
+var ip = require('ip').address('public');
 var async = require('async');
 
 module.exports = function(app){
