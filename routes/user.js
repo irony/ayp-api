@@ -67,7 +67,9 @@ module.exports = function(app){
         return next(err);
       }
       req.logIn(user, function(){
-        res.json(me(user));
+        user.generateToken(function(){
+          res.json(me(user));
+        });
       });
     });
   });

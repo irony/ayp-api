@@ -12,7 +12,7 @@ module.exports = {
     var connectors = [];
 
     if (!connector) {
-      if (!user.accounts ||  !user.accounts.length) throw new Error('No connectors for this user, specify an connector instead');
+      if (!user.accounts ||  !user.accounts.length) return console.log('No connectors for this user, specify an connector instead');
       connectors = Object.keys(user.accounts);
     } else {
       connectors = [connector];
