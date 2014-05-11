@@ -43,6 +43,7 @@ module.exports = function(app){
           .count(done);
       },
       ip: function(done){
+        console.log('headers', req.headers);
         return done(null, ip);
       },
       modified: function  (done) {

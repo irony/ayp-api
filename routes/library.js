@@ -74,7 +74,9 @@ module.exports = function(app){
           .exec(function(err, photos){
             done(null, (photos || []).map(function(photo){
               var mine = photo.getMine(req.user._id);
-              mine.src = mine.src && '$' + mine.src.split(baseUrl.replace('http://','')).pop() || null;
+              if (mine.src.indexOf(baseUrl.replace('http://','')) > -1){
+                mine.src = mine.src && '$' + mine.src.split(baseUrl.replace('http://','')).pop() || null;
+              }
               return mine;
             }));
           });
