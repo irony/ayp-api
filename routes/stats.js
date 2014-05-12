@@ -38,6 +38,9 @@ module.exports = function(app){
         // .where('store.lastTry').gte(new Date() - 24 * 60 * 60 * 1000) // skip photos with previous download problems
         .count(done);
       },
+      accounts: function(done){
+        return done(null, Object.keys(req.user.accounts));
+      },
       errors: function  (done) {
         Photo.find({'owners': req.user._id})
           .count(done);
