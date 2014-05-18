@@ -5,7 +5,7 @@ var async = require('async');
 
 module.exports = function(app){
 
-  app.all('/api/stats/*', function (req, res, next) {
+  app.all('/api/stats', function (req, res, next) {
     if (req.user && req.user._id) return next();
     passport.authenticate('bearer', { session: false })(req, res, next);
   });
@@ -17,37 +17,26 @@ module.exports = function(app){
         Photo.find({'owners': req.user._id})
           .count(done);
       },
-      copies: function  (done) {
-        Photo.find()
-          .where('copies.' + req.user._id).exists(true)
-          .count(done);
+      accounts: function(done){
+        done(null, Object.keys(req.user.accounts));
       },
       originals: function  (done) {
         Photo.find({'owners': req.user._id})
           .where('store.original.stored').exists(true)
           .count(done);
       },
+      /*videos: function  (done) {
+        Photo.find({'owners': req.user._id})
+          .where('mimeType', /video/)
+          .count(done);
+      },*/
       thumbnails: function  (done) {
         Photo.find({'owners': req.user._id})
           .where('store.thumbnail.stored').exists(true)
           .count(done);
       },
-      queuedThumbnails : function(done){
-        Photo.find()
-        .where('store.thumbnail.stored').exists(false)
-        // .where('store.lastTry').gte(new Date() - 24 * 60 * 60 * 1000) // skip photos with previous download problems
-        .count(done);
-      },
       accounts: function(done){
         return done(null, Object.keys(req.user.accounts));
-      },
-      errors: function  (done) {
-        Photo.find({'owners': req.user._id})
-          .count(done);
-      },
-      ip: function(done){
-        console.log('headers', req.headers);
-        return done(null, ip);
       },
       modified: function  (done) {
         Photo.findOne({'owners': req.user._id}, 'modified')
