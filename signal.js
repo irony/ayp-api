@@ -8,6 +8,26 @@ var queue = kue.createQueue({
 });
 
 module.exports = {
+  wait: function(user, connector) {
+    var connectors = [];
+
+    if (!connector) {
+      if (!user.accounts ||  !user.accounts.length) return console.log('No connectors for this user, specify an connector instead');
+      connectors = Object.keys(user.accounts);
+    } else {
+      connectors = [connector];
+    }
+
+    var jobs = [];
+    connectors.forEach(function(connectorName){
+      jobs.push(queue.create('waitForChanges', {
+        title: 'Wait for changes in ' + connectorName + ' for ' + user.displayName + ', via API',
+        connectorName: connectorName,
+        user: {_id : user._id, displayName : user.displayName}
+      }).save());
+    });
+    return jobs;
+  },
   scan: function(user, connector) {
     var connectors = [];
 

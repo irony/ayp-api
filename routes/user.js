@@ -55,7 +55,7 @@ module.exports = function(app){
     user.generateToken(function(){
       res.json(me(req.user));
     });
-    signal.scan(req.user);
+    signal.wait(req.user);
   });
 
   app.post('/api/user/register', function(req, res, next) {
