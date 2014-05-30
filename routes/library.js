@@ -16,7 +16,7 @@ module.exports = function(app){
     if (req.query.userId && req.query.userId !== req.user._id.toString()) return res.send('Login first', 403);
 
     var limit = req.query.limit || 2000;
-    var baseUrl = 'http://a.phto.org/thumbnail';
+    var baseUrl = 'https://a.phto.org.s3-website-eu-west-1.amazonaws.com/thumbnail';
 
     if (!req.user) return res.send('Login first', 403);
 
