@@ -1,12 +1,11 @@
 var Photo = require('AllYourPhotosModels').photo;
 var passport = require('AllYourPhotosModels').passport;
-var User = require('AllYourPhotosModels').user;
 var async = require('async');
 var request = require('request');
 var signal = require('../signal');
 var ObjectId = require('mongoose').Types.ObjectId;
 
-module.exports = function(app){
+module.exports = function(app){ 
 
   app.all('/api/photo/*', function (req, res, next) {
     if (req.user) return next();
@@ -199,28 +198,7 @@ module.exports = function(app){
     
   });
 
-  app.get('/api/dropbox/webhook', function(req, res){
-    if (req.query.challenge) {
-      res.send(req.query.challenge);
-    }
-  });
 
-  app.post('/api/dropbox/webhook', function(req, res){
-    var payload = req.body;
-    if (payload.delta){
-      payload.delta.users.map(function(dropboxId){
-        User.findOne({ '$where' : 'this.accounts && this.accounts["dropbox"] && this.accounts["dropbox"].id == ' + dropboxId })
-        .exec(function (err, user) {
-          if (err) throw err;
-          
-          signal.scan(user, 'dropbox');
-        });
-      });
-      res.send('OK');
-    } else {
-      res.send('No delta found', 500); 
-    }
-  })
 
   //http://www.allyourphotos.org/upload?image=http://app4.pixlr.com/_temp/534e688dd535cfc8a30000c4.jpg&type=jpg&title=Namnl%C3%B6s&state=replace
 
