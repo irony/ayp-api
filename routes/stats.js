@@ -42,15 +42,15 @@ module.exports = function(app){
       ip: function(done){
         // cached value
         if (ip) return done(null, ip);
+        if (process.env.NODE_ENV !== 'production') {
+          return done(null, 'dev.allyourphotos.org');
+        }
 
         publicAddress(function(err, data){
           if (err) return done(err);
           ip = (data.address);
           return done(null, ip);
         })
-      },
-      accounts: function(done){
-        return done(null, Object.keys(req.user.accounts));
       },
       modified: function  (done) {
         Photo.findOne({'owners': req.user._id}, 'modified')

@@ -10,8 +10,6 @@ module.exports = function(app){
   });
 
   app.get('/api/library', function(req, res){
-    console.log(req.query.userId, req.user._id);
-
     // prevent caching between users
     if (req.query.userId && req.query.userId !== req.user._id.toString()) return res.send('Login first', 403);
 

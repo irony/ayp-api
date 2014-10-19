@@ -51,7 +51,6 @@ module.exports = function(app){
 
   app.post('/api/user/login', passport.authenticate('local'), function(req, res) {
     var user = req.user;
-    console.log('login', user);
     user.generateToken(function(){
       res.json(me(req.user));
     });
