@@ -1,7 +1,11 @@
 var Photo = require('AllYourPhotosModels').photo;
 var passport = require('AllYourPhotosModels').passport;
-var ip = require('ip').address('public');
+var publicAddress = require('public-address');
 var async = require('async');
+
+// resolve this servers public ip by requesting the address from remoteaddress.net
+var ip = null;
+
 
 module.exports = function(app){
 
@@ -34,6 +38,16 @@ module.exports = function(app){
         Photo.find({'owners': req.user._id})
           .where('store.thumbnail.stored').exists(true)
           .count(done);
+      },
+      ip: function(done){
+        // cached value
+        if (ip) return done(null, ip);
+
+        publicAddress(function(err, data){
+          if (err) return done(err);
+          ip = (data.address);
+          return done(null, ip);
+        })
       },
       accounts: function(done){
         return done(null, Object.keys(req.user.accounts));
