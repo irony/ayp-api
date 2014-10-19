@@ -4,6 +4,7 @@ var async = require('async');
 var request = require('request');
 var signal = require('../signal');
 var ObjectId = require('mongoose').Types.ObjectId;
+var connectors = require('AllYourPhotosConnectors')();
 
 module.exports = function(app){ 
 
@@ -81,7 +82,7 @@ module.exports = function(app){
 
     Photo.findOne({_id: new ObjectId(req.params.id), owners : req.user._id})
     .populate('owners')
-    .select('mimeType exif copies.' + req.user._id + ' modified path source store.original taken owners')
+    .select('mimeType exif copies.' + req.user._id + ' modified path source store taken owners')
     .exec(function(err, photo){
       if (err) return res.send('Error finding photo', 500);
       if (!photo) return res.send('Could not find photo ' + req.params.id, 403);
@@ -97,7 +98,15 @@ module.exports = function(app){
           facebookId: owner.accounts && owner.accounts.facebook && owner.accounts.facebook.id
         };
       });
-      return res.json(mine);
+
+      if (!mine.store.original && connectors[photo.source]){
+        connectors[photo.source].getOriginalUrl(req.user, photo, function(err, original){
+          mine.store.original = original;
+          return res.json(mine);
+        });
+      } else {
+        return res.json(mine);
+      }
     });
   });
 
