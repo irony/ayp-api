@@ -1,5 +1,5 @@
 var mongoose = require('mongoose'),
-    models  = require('AllYourPhotosModels'),
+    models  = require('ayp-models'),
     faker  = require('charlatan'),
     User = models.user,
     Photo = models.photo,

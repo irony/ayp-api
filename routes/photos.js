@@ -1,10 +1,10 @@
-var Photo = require('AllYourPhotosModels').photo;
-var passport = require('AllYourPhotosModels').passport;
+var Photo = require('ayp-models').photo;
+var passport = require('ayp-models').passport;
 var async = require('async');
 var request = require('request');
 var signal = require('../signal');
 var ObjectId = require('mongoose').Types.ObjectId;
-var connectors = require('AllYourPhotosConnectors')();
+var connectors = require('ayp-connectors')();
 
 module.exports = function(app){ 
 
@@ -176,7 +176,7 @@ module.exports = function(app){
 
   app.get('/api/upload', function(req, res){
     //http://dev.allyourphotos.org:3000/api/upload?image=http://app4.pixlr.com/_temp/5355fd05d535cfcad4000036.jpg&type=jpg&title=Venice&state=replace'
-    var uploadHandler = require('AllYourPhotosJobs').uploadHandler;
+    var uploadHandler = require('ayp-jobs').uploadHandler;
     var image = request(req.query.image);
     image.headers['content-type'] = 'image/jpeg';
     uploadHandler.handleRequest(image, function(err, results){
@@ -188,7 +188,7 @@ module.exports = function(app){
 
   app.post('/api/upload', function(req, res){
 
-    var uploadHandler = require('AllYourPhotosJobs').uploadHandler;
+    var uploadHandler = require('ayp-jobs').uploadHandler;
     uploadHandler.handleRequest(req, function(err, results){
       if (err) {
         console.log('Error: upload aborted: '.red, err);

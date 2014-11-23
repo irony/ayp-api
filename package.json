@@ -14,9 +14,9 @@
     "nconf": "*"
   },
   "dependencies": {
-    "AllYourPhotosConnectors": "irony/ayp-connectors",
-    "AllYourPhotosJobs": "irony/ayp-jobs",
-    "AllYourPhotosModels": "irony/ayp-models",
+    "ayp-connectors": "*",
+    "ayp-jobs": "*",
+    "ayp-models": "*",
     "async": "*",
     "image-headers": "~0.3.3",
     "knox": "*",

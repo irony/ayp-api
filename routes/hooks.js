@@ -1,4 +1,4 @@
-var User = require('AllYourPhotosModels').user;
+var User = require('ayp-models').user;
 var signal = require('../signal');
 
 module.exports = function(app){

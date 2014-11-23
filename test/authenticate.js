@@ -8,8 +8,8 @@ var chai      = require('chai')
   , expect    = chai.expect
   , express   = require('express')
   , request   = require('supertest')
-  , models  = require('AllYourPhotosModels').init()
-  , passport  = require('AllYourPhotosModels').passport
+  , models  = require('ayp-models').init()
+  , passport  = require('ayp-models').passport
   , sessionOptions  = { key: 'express.sid', cookieParser: express.cookieParser, secret: 'fdasfdas'}
   , api       = require('../index.js')
 

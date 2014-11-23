@@ -1,5 +1,5 @@
-var Photo = require('AllYourPhotosModels').photo;
-var passport   = require('AllYourPhotosModels').passport;
+var Photo = require('ayp-models').photo;
+var passport   = require('ayp-models').passport;
 var async = require('async');
 
 module.exports = function(app){

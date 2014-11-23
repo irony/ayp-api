@@ -1,5 +1,5 @@
-var Group = require('AllYourPhotosModels').group;
-var passport   = require('AllYourPhotosModels').passport;
+var Group = require('ayp-models').group;
+var passport   = require('ayp-models').passport;
 var _ = require('lodash');
 var async = require('async');
 

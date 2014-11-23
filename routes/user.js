@@ -1,7 +1,7 @@
-var User       = require('AllYourPhotosModels').user,
-    passport   = require('AllYourPhotosModels').passport,
+var User       = require('ayp-models').user,
+    passport   = require('ayp-models').passport,
     signal     = require('../signal'),
-    connectors = require('AllYourPhotosConnectors')();
+    connectors = require('ayp-connectors')();
 
 module.exports = function(app){
 

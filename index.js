@@ -1,6 +1,6 @@
 var _ = require('lodash'),
-    User = require('AllYourPhotosModels').user,
-    passport = require('AllYourPhotosModels').passport,
+    User = require('ayp-models').user,
+    passport = require('ayp-models').passport,
     BearerStrategy = require('passport-http-bearer').Strategy;
 
 var api = module.exports = {
@@ -31,7 +31,7 @@ var api = module.exports = {
     /* automatic documentation
     swagger = require("swagger-node-express");
     swagger.setAppHandler(app);
-    swagger.addModels(require('AllYourPhotosModels'));
+    swagger.addModels(require('ayp-models'));
     swagger.configure("http://api.allyourphotos.org", "0.1");
     */
     return app;

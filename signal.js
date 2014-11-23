@@ -1,5 +1,5 @@
 var kue = require('kue'),
-  Photo = require('AllYourPhotosModels').photo,
+  Photo = require('ayp-models').photo,
   async = require('async'),
   nconf = require('nconf');
 

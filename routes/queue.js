@@ -1,4 +1,4 @@
-var passport   = require('AllYourPhotosModels').passport,
+var passport   = require('ayp-models').passport,
     signal     = require('../signal');
 
 module.exports = function(app){

@@ -1,4 +1,4 @@
-var jobs = require('AllYourPhotosJobs');
+var jobs = require('ayp-jobs');
 
 module.exports = function(app){
 
