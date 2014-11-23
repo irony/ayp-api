@@ -22,7 +22,7 @@ module.exports = function(app){
           .count(done);
       },
       accounts: function(done){
-        done(null, Object.keys(req.user.accounts));
+        done(null, req.user.accounts && Object.keys(req.user.accounts) || []);
       },
       originals: function  (done) {
         Photo.find({'owners': req.user._id})
