@@ -37,11 +37,13 @@ module.exports = function(app){
       signal.scan(user, connector.name);
       req.logIn(user, function(){
         if(!user.token){
-          user.generateToken(function(){
+          user.generateToken(function(err){
+            if (err) return next(err);
+
             res.redirect('/me/wall/#access_token=' + user.token);
           });
         } else {
-          res.redirect('/me/wall/#access_token=' + user.token);
+          res.redirect('/logout');
         }
       });
 
