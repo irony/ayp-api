@@ -29,36 +29,36 @@ module.exports = function(app){
     res.json(me(req.user));
   });
 
-  app.get('/api/user/:connector/:callback?', function(req, res, next){
-    var connector = connectors[req.params.connector];
-    passport.authenticate(connector.name, {scope : connector.scope}, function(err, user, info) {
-      if (err) { return next(err); }
-      if (!user) { return res.send('Incorrect credentials', 401); }
-      signal.scan(user, connector.name);
-      req.logIn(user, function(){
-        if(!user.token){
-          user.generateToken(function(err){
-            if (err) return next(err);
-
-            res.redirect('/me/wall/#access_token=' + user.token);
-          });
-        } else {
-          res.redirect('/logout');
-        }
-      });
-
-    })(req, res, next);
-  });
-
-
-  app.post('/api/user/login', passport.authenticate('local'), function(req, res) {
-    var user = req.user;
-    user.generateToken(function(){
-      res.json(me(req.user));
+  app.post('/api/user/login', passport.authenticate('local'), function(req, res){
+    console.log('local auth', req.user);
+    req.user.generateToken(function() {
+      signal.wait(req.user);
+      return res.json(me(req.user));
     });
-    signal.wait(req.user);
   });
-
+/*
+  app.post('/api/user/login', function(req, res, next){
+    console.log('step1')
+    passport.authenticate('local', function(err, user, info) {
+      console.log('step2')
+      if (err) return next(err);
+      if (!user) {
+        console.log('no user')
+        req.session.messages = [info.message];
+        return res.redirect('/login');
+      }
+      req.logIn(user, function(err) {
+        console.log('generate token')
+        if (err) return next(err);
+        user.generateToken(function() {
+          console.log('logged in', req.user);
+          signal.wait(req.user);
+          return res.json(me(req.user));
+        });
+      });
+    });
+  });
+*/
   app.post('/api/user/register', function(req, res, next) {
 
     //TODO: verify email req.body.username
@@ -74,5 +74,31 @@ module.exports = function(app){
       });
     });
   });
+
+  app.get('/api/user/:connector/:callback?', function(req, res, next){
+    console.log('connect', req.params);
+    var connector = connectors[req.params.connector];
+    passport.authenticate(connector.name, {scope : connector.scope}, function(err, user, info) {
+      if (err) { return next(err); }
+      if (!user) { return res.send('Incorrect credentials', 401); }
+      signal.scan(user, connector.name);
+      req.logIn(user, function(){
+        if(!user.token){
+          user.generateToken(function(err){
+            if (err) return next(err);
+
+            res.redirect('/me/wall/#access_token=' + user.token);
+          });
+        } else {
+          console.log('logout')
+          res.redirect('/logout');
+        }
+      });
+
+    })(req, res, next);
+  });
+
+
+  
 
 };
