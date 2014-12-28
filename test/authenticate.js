@@ -1,30 +1,31 @@
 // run tests locally or with test collection
 var nconf = require('nconf');
-nconf.overrides({
-  mongoUrl : 'mongodb://192.168.59.103/ayp-test'
-});
+nconf.file({file: 'config.json', dir:'../../', search: true});
 
 var chai      = require('chai')
   , expect    = chai.expect
   , express   = require('express')
   , request   = require('supertest')
-  , models  = require('ayp-models').init()
+  , models    = require('ayp-models').init(nconf)
+  , session   = require('express-session')
+  , bodyParser = require('body-parser')
+  , cookieParser = require('cookie-parser')
   , passport  = require('ayp-models').passport
-  , sessionOptions  = { key: 'express.sid', cookieParser: express.cookieParser, secret: 'fdasfdas'}
+  , sessionOptions  = { passport: passport, secret: nconf.get('sessionSecret'), resave: true, saveUninitialized: true }
   , api       = require('../index.js')
 
   , app
   , token
   , cookie;
 
-describe('auth', function() {
+describe.only('auth', function() {
   before(function () {
     var web = express();
-    web.use(express.urlencoded());
-    web.use(express.json());
-    web.use(express.session(sessionOptions));
+    web.use(cookieParser());
+    web.use(bodyParser.json());
+    web.use(session(sessionOptions));
     web.use(passport.initialize());
-    web.use(passport.session());
+    web.use(passport.session(sessionOptions));
 
     app = api.init(web);
   });  
@@ -43,7 +44,7 @@ describe('auth', function() {
 
     var random = Math.random() * 1000000;
     request(app)
-    .post('/api/register')
+    .post('/api/user/register')
     .send({username: 'test' + random, password:'test'})
     .expect(200)
     .end(function(err, res) {
@@ -60,7 +61,7 @@ describe('auth', function() {
 
     var random = Math.random() * 1000000;
     request(app)
-    .post('/api/register')
+    .post('/api/user/register')
     .send({username: 'test' + random, password:'test'})
     .expect(200)
     .end(function(err, res) {
@@ -82,7 +83,7 @@ describe('auth', function() {
 
     var random = Math.random() * 1000000;
     request(app)
-    .post('/api/register')
+    .post('/api/user/register')
     .send({username: 'test' + random, password:'test'})
     .expect(200)
     .end(function(err, res) {
@@ -94,11 +95,32 @@ describe('auth', function() {
       .expect(200)
       .end(function(err, res) {
         if (err) throw err;
-        expect(res.body).to.have.property("access_token");
+        expect(res.body).to.have.property('access_token');
         done();
       });
     });
 
+  });
+
+  it('should register + login and receive a cookie', function(done){
+
+    var random = Math.random() * 1000000;
+    request(app)
+    .post('/api/user/register')
+    .send({username: 'test' + random, password:'test'})
+    .expect(200)
+    .end(function(err, res) {
+      if (err) throw err;
+      token = res.body['access_token'];
+      request(app)
+      .post('/api/user/login')
+      .send({ username : 'test' + random, password:'test' })
+      .expect(200)
+      .expect('set-cookie', /connect.sid=.*;/, done);
+    });
+
   })
+
+
 
 });

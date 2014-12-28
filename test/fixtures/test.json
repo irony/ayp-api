@@ -1,0 +1,45 @@
+{
+  "etcd": {
+    "host": "192.168.59.103",
+    "port": "4001"
+  },
+  "port": "3000",
+  "aws": {
+    "bucket": "dummy",
+    "key": "dummy",
+    "secret": "dummy"
+  },
+  "baseUrl": "http://dev.allyourphotos.org:3000",
+  "dbox": {
+    "app_key": "dummy",
+    "app_secret": "dummy",
+    "root": "dropbox",
+    "scope": ""
+  },
+  "facebook": {
+    "appId": "dummy",
+    "appSecret": "dummy"
+  },
+  "flickr": {
+    "consumerKey": "dummy",
+    "consumerSecret": "dummy"
+  },
+  "google": {
+    "clientId": "dummy",
+    "clientSecret": "dummy",
+    "apiKey": "dummy"
+  },
+  "instagram": {
+    "clientId": "dummy",
+    "clientSecret": "dummy"
+  },
+  "mongoUrl": "mongodb://192.168.59.103/test",
+  "redis": {
+    "port": 6379,
+    "host": "redis"
+  },
+  "twitter": {
+    "consumerKey": "dummy",
+    "consumerSecret": "dummy"
+  }
+}

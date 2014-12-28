@@ -17,8 +17,11 @@ var chai      = require('chai')
   , User      = models.user
   , Photo     = models.photo
   , passport  = require('ayp-models').passport
-  , sessionOptions  = { key: 'express.sid', cookieParser: express.cookieParser, secret: 'fdasfdas'}
-  , api       = require('../index.js')
+  , session = require('express-session')
+  , bodyParser = require('body-parser')
+  , cookieParser = require('cookie-parser')
+  , passport  = require('ayp-models').passport
+  , sessionOptions  = { passport: passport, secret: nconf.get('sessionSecret') }  , api       = require('../index.js')
   , fixtures  = require('./fixtures/db')
   , app
   , token
@@ -29,9 +32,8 @@ console.debug = function(){};
 describe('library', function() {
   before(function (done) {
     var web = express();
-    web.use(express.urlencoded());
-    web.use(express.json());
-    web.use(express.session(sessionOptions));
+    web.use(cookieParser());
+    web.use(session(sessionOptions));
     web.use(passport.initialize());
     web.use(passport.session());
 

@@ -11,11 +11,11 @@ var chai      = require('chai')
   , expect    = chai.expect
   , express   = require('express')
   , request   = require('supertest')
-  , models    = require('ayp-models').init()
+  , models    = require('ayp-models').init(nconf)
   , User      = models.user
   , Photo     = models.photo
   , passport  = require('ayp-models').passport
-  , sessionOptions  = { key: 'express.sid', cookieParser: express.cookieParser, secret: 'fdasfdas'}
+  , sessionOptions  = { passport: passport, secret: nconf.get('sessionSecret') }
   , api       = require('../index.js')
   , fixtures  = require('./fixtures/db')
   , app
@@ -29,6 +29,7 @@ describe('library', function() {
     var web = express();
     web.use(express.urlencoded());
     web.use(express.json());
+    web.use(express.cookieParser());
     web.use(express.session(sessionOptions));
     web.use(passport.initialize());
     web.use(passport.session());
