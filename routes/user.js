@@ -35,7 +35,7 @@ module.exports = function(app){
       return res.json(me(req.user));
     });
   });
-/*
+
   app.post('/api/user/login', function(req, res, next){
     console.log('step1')
     passport.authenticate('local', function(err, user, info) {
@@ -57,7 +57,7 @@ module.exports = function(app){
       });
     });
   });
-*/
+
   app.post('/api/user/register', function(req, res, next) {
 
     //TODO: verify email req.body.username

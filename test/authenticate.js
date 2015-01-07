@@ -2,21 +2,22 @@
 var nconf = require('nconf');
 nconf.file({file: 'config.json', dir:'../../', search: true});
 
-var chai      = require('chai')
-  , expect    = chai.expect
-  , express   = require('express')
-  , request   = require('supertest')
-  , models    = require('ayp-models').init(nconf)
-  , session   = require('express-session')
-  , bodyParser = require('body-parser')
-  , cookieParser = require('cookie-parser')
-  , passport  = require('ayp-models').passport
-  , sessionOptions  = { passport: passport, secret: nconf.get('sessionSecret'), resave: true, saveUninitialized: true }
-  , api       = require('../index.js')
-
-  , app
-  , token
-  , cookie;
+var chai = require('chai'),
+  expect = chai.expect,
+  express = require('express'),
+  request = require('supertest'),
+  session = require('express-session'),
+  bodyParser = require('body-parser'),
+  cookieParser = require('cookie-parser'),
+  passport = require('ayp-models').passport, 
+  sessionOptions = {
+    passport: passport,
+    secret: nconf.get('sessionSecret'),
+    resave: true,
+    saveUninitialized: true
+  },
+  api = require('../index.js'),
+  app, token;
 
 describe.only('auth', function() {
   before(function () {
