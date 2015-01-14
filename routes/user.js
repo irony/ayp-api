@@ -25,7 +25,8 @@ module.exports = function(app){
     };
   }
 
-  app.get('/api/user/me', passport.authenticate('bearer', { session: false }), function(req, res, next){
+  app.get('/api/user/me', passport.authenticate('bearer', { session: true }), function(req, res, next){
+    console.log('user me');
     res.json(me(req.user));
   });
 
@@ -37,20 +38,15 @@ module.exports = function(app){
   });
 
   app.post('/api/user/login', function(req, res, next){
-    console.log('step1')
     passport.authenticate('local', function(err, user, info) {
-      console.log('step2')
       if (err) return next(err);
       if (!user) {
-        console.log('no user')
         req.session.messages = [info.message];
         return res.redirect('/login');
       }
       req.logIn(user, function(err) {
-        console.log('generate token')
         if (err) return next(err);
         user.generateToken(function() {
-          console.log('logged in', req.user);
           signal.wait(req.user);
           return res.json(me(req.user));
         });
@@ -82,9 +78,12 @@ module.exports = function(app){
         console.log('callback', err, user, info)
         return next(err); 
       }
-      if (!user) { return res.send('Incorrect credentials', 401); }
-      signal.scan(user, connector.name);
+      if (!user) { 
+        console.log('401');
+        return res.send('Incorrect credentials', 401); 
+      }
       req.logIn(user, function(){
+        console.log('requser', req.user)
         if(!user.token){
           user.generateToken(function(){
             res.redirect('/me/wall/#access_token=' + user.token);
@@ -93,6 +92,7 @@ module.exports = function(app){
           res.redirect('/me/wall/#access_token=' + user.token);
         }
       });
+      signal.scan(user, connector.name);
 
     })(req, res, next);
   });

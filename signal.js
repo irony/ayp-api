@@ -37,8 +37,6 @@ module.exports = {
     } else {
       connectors = [connector];
     }
-    console.log('scan', user, connector);
-
     var job = queue.create('importUserPhotos', {
       title: user.displayName + 's import for ' + connector + ', via API',
       connectorName: connector,
